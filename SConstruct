@@ -116,7 +116,7 @@ opts.Add(
         "platform",
         "Target platform",
         host_platform,
-        allowed_values=("linux", "freebsd", "osx", "windows", "android", "ios", "javascript"),
+        allowed_values=("linux", "freebsd", "osx", "windows", "android", "ios", "javascript", "vita"),
         ignorecase=2,
     )
 )
@@ -465,6 +465,26 @@ elif env["platform"] == "javascript":
     elif env["target"] == "release":
         env.Append(CCFLAGS=["-O3"])
 
+elif env["platform"] == "vita":
+    vita_sdk_path = os.environ.get("VITASDK", "/usr/local/vitasdk")
+
+    env["CC"] = vita_sdk_path + "/bin/arm-vita-eabi-gcc"
+    env["CXX"] = vita_sdk_path + "/bin/arm-vita-eabi-g++"
+    env["LD"] = vita_sdk_path + "/bin/arm-vita-eabi-ld"
+    env["AR"] = vita_sdk_path + "/bin/arm-vita-eabi-ar"
+    env["STRIP"] = vita_sdk_path + "/bin/arm-vita-eabi-strip"
+    env["RANLIB"] = vita_sdk_path + "/bin/arm-vita-eabi-ranlib"
+
+    env.Append(CCFLAGS=["-Wwrite-strings", "-Wno-attributes"])
+    env.Append(LINKFLAGS=["-Wl,-R,'$$ORIGIN'"])
+
+    if env["target"] == "debug":
+        env.Append(CCFLAGS=["-Og", "-g"])
+    elif env["target"] == "release":
+        env.Append(CCFLAGS=["-O3"])
+
+    env["bits"] = "32"
+
 # Cache
 scons_cache_path = os.environ.get("SCONS_CACHE")
 if scons_cache_path is not None:
@@ -509,6 +529,8 @@ elif env["platform"] == "osx":
         arch_suffix = env["macos_arch"]
 elif env["platform"] == "javascript":
     arch_suffix = "wasm"
+elif env["platform"] == "vita":
+    arch_suffix = "armv7"
 # Expose it to projects that import this env.
 env["arch_suffix"] = arch_suffix
 

@@ -90,7 +90,7 @@ enum class Error {
 #include <GodotGlobal.hpp>
 
 // alloca() is non-standard. When using MSVC, it's in malloc.h.
-#if defined(__linux__) || defined(__APPLE__)
+#if defined(__linux__) || defined(__APPLE__) || defined(__vita__)
 #include <alloca.h>
 #else
 #include <malloc.h>
